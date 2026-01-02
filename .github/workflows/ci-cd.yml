@@ -1,0 +1,44 @@
+# .github/workflows/ci-cd.yml
+
+name: Go-Notes CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go Environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24' 
+
+      - name: Compile and Check for Errors
+        run: go build -v ./... 
+
+      - name: Run Unit Tests
+        run: go test -v ./... 
+
+  cd:
+    needs: ci 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH Connection and Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Add Server to Known Hosts
+        run: ssh-keyscan -H 192.168.56.101 >> ~/.ssh/known_hosts
+
+      - name: Execute Deployment Script on VM
+        run: |
+          # O comando SSH que executa o deploy.sh no servidor
+          ssh -o StrictHostKeyChecking=no edyezzy@192.168.56.101 'sudo /home/appuser/go-notes/deploy.sh'
