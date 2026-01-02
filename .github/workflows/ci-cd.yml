@@ -37,7 +37,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add Server to Known Hosts (Expected Failure)
-        #run: ssh-keyscan -T 1 -H 192.168.56.101 >> ~/.ssh/known_hosts
+        run: ssh-keyscan -T 1 -H 192.168.56.101 >> ~/.ssh/known_hosts
 
       - name: Execute Deployment Script on VM (Expected Failure)
         run: |
